@@ -2,23 +2,25 @@ import numpy
 import Slope_aspect
 import dist
 import time
-import rpy
+import rpy2
 import pickle
 import pylab
 from scipy import ndimage
 
 def VegetationClassify(Elev_arr, River_arr): 
 
-  rpy.r.library("rpart")
+  from rpy2.robjects.packages import importr
+  rpart = importr("rpart")
+
   # Read the dictionary from the pickle file
   pkl_file = open('decision_tree.pkl','rb')
-  rpy.set_default_mode(rpy.NO_CONVERSION)
+  rpy2.set_default_mode(rpy2.NO_CONVERSION)
   traing_data = pickle.load(pkl_file)
   pkl_file.close()
 
   # Create Decision tree for predicting landcover class
   # create the decision tree using rpart 
-  fit = rpy.r.rpart(formula='Class ~ Elevation + RiverDistance + Slope \
+  fit = rpart(formula='Class ~ Elevation + RiverDistance + Slope \
       + Aspect_x + Aspect_y',data = traing_data, method = "class")
 
   # calculate River distance using River_arr
@@ -55,9 +57,9 @@ def VegetationClassify(Elev_arr, River_arr):
   Test_data ={'Elevation':Elevation ,'Slope':Slope ,'RiverDistance':RiverDistance,\
              'Aspect_x':Aspect_x,'Aspect_y':Aspect_y}
 
-  rpy.set_default_mode(rpy.BASIC_CONVERSION)
+  rpy2.set_default_mode(rpy2.BASIC_CONVERSION)
   # values contain probability values of the predicted landcover classes
-  values = rpy.r.predict(fit,newdata=Test_data,method="class")
+  values = rpy2.r.predict(fit,newdata=Test_data,method="class")
   for i in range(0,x_len):
     for j in range(0,y_len):
       # Get the class having max probability for each test data point

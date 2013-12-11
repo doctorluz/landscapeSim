@@ -1,7 +1,7 @@
 import numpy
 import Slope_aspect
 import city_block_dist
-import rpy
+import rpy2
 import pickle
 
 def DecisionTree(output_dir, elev_filename, landcover_filename, river_filename):
@@ -10,7 +10,7 @@ def DecisionTree(output_dir, elev_filename, landcover_filename, river_filename):
   It imports rpart library from rpy package.
   Reads the training data, creates a sample data and use rpart libray to build decision tree. 
   """
-  rpy.r.library("rpart") # rpart library used for creating Decision tree
+  rpy2.r.library("rpart") # rpart library used for creating Decision tree
   #Read Elevation Data from ascii file
   file_name = "training_data/%s" % (elev_filename)
   Elev_arr = numpy.loadtxt(file_name, unpack=True)
@@ -95,14 +95,14 @@ def DecisionTree(output_dir, elev_filename, landcover_filename, river_filename):
   pickle.dump(traing_data,output)
   output.close()
 
-  rpy.set_default_mode(rpy.NO_CONVERSION)
+  rpy2.set_default_mode(rpy2.NO_CONVERSION)
   print "Creating Decision tree"
   #Using rpart create the decision tree
-  fit = rpy.r.rpart(formula='Class ~ Elevation + RiverDistance + Slope + Aspect_x + Aspect_y',data=traing_data,method="class")
+  fit = rpy2.r.rpart(formula='Class ~ Elevation + RiverDistance + Slope + Aspect_x + Aspect_y',data=traing_data,method="class")
 
   #output a png image of the decision tree
   file_name = "%s/DecisionTree.png" % (output_dir)
-  rpy.r.png(file_name)
-  rpy.r.plot(fit)
-  rpy.r.text(fit)
-  rpy.r.dev_off()
+  rpy2.r.png(file_name)
+  rpy2.r.plot(fit)
+  rpy2.r.text(fit)
+  rpy2.r.dev_off()
